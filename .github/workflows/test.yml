@@ -16,8 +16,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: ros2_ws/src/mypkg
 
       - name: Run tests
-        run: ./ros2_ws/src/mypkg/test/test_b64.sh $HOME
+        run: |
+          source /opt/ros/${{ matrix.ros_distro }}/setup.bash
+          mkdir -p ~/ros2_ws/src
+          cp -r . ~/ros2_ws/src/mypkg
+          cd ~/ros2_ws
+          colcon build
+          source install/setup.bash
+          ./src/mypkg/test/test_b64.sh ~
