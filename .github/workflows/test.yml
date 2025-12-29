@@ -1,0 +1,23 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ros_distro: [humble, jazzy]
+    container: ros:${{ matrix.ros_distro }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ros2_ws/src/mypkg
+
+      - name: Run tests
+        run: ./ros2_ws/src/mypkg/test/test_b64.sh $HOME

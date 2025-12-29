@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'b64_encode = b64.b64_encode:main'
+            'b64_encode = b64.b64_encode:main',
+            'b64_decode = b64.b64_decode:main',
         ],
     },
 )
