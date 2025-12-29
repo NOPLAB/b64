@@ -3,7 +3,6 @@ import base64
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, DurabilityPolicy
 from rclpy.serialization import serialize_message
 from rosidl_runtime_py.utilities import get_message
 from std_msgs.msg import String
@@ -30,8 +29,7 @@ class B64EncodeNode(Node):
             10
         )
 
-        qos = QoSProfile(depth=10, durability=DurabilityPolicy.TRANSIENT_LOCAL)
-        self.publisher = self.create_publisher(String, '~/output', qos)
+        self.publisher = self.create_publisher(String, '~/output', 10)
 
         self.get_logger().info(
             f'Subscribing to {input_topic} ({input_type}), '
