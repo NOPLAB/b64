@@ -2,7 +2,8 @@ import base64
 
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import QoSProfile
+from rclpy.serialization import serialize_message
+from rosidl_runtime_py.utilities import get_message
 from std_msgs.msg import String
 
 
@@ -18,13 +19,13 @@ class B64EncodeNode(Node):
         input_topic = self.get_parameter('input_topic').value
         input_type = self.get_parameter('input_type').value
 
-        qos = QoSProfile(depth=10)
+        msg_class = get_message(input_type)
 
-        self.subscription = self.create_generic_subscription(
-            input_type,
+        self.subscription = self.create_subscription(
+            msg_class,
             input_topic,
             self._callback,
-            qos
+            10
         )
 
         self.publisher = self.create_publisher(String, '~/output', 10)
@@ -34,7 +35,8 @@ class B64EncodeNode(Node):
             f'publishing to ~/output'
         )
 
-    def _callback(self, serialized_msg: bytes):
+    def _callback(self, msg):
+        serialized_msg = serialize_message(msg)
         encoded = base64.b64encode(serialized_msg).decode('ascii')
         out_msg = String()
         out_msg.data = encoded

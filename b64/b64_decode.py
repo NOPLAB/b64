@@ -2,7 +2,8 @@ import base64
 
 import rclpy
 from rclpy.node import Node
-from rclpy.qos import QoSProfile
+from rclpy.serialization import deserialize_message
+from rosidl_runtime_py.utilities import get_message
 from std_msgs.msg import String
 
 
@@ -18,6 +19,8 @@ class B64DecodeNode(Node):
         output_topic = self.get_parameter('output_topic').value
         output_type = self.get_parameter('output_type').value
 
+        self.msg_class = get_message(output_type)
+
         self.subscription = self.create_subscription(
             String,
             '~/input',
@@ -25,12 +28,10 @@ class B64DecodeNode(Node):
             10
         )
 
-        qos = QoSProfile(depth=10)
-
-        self.publisher = self.create_generic_publisher(
-            output_type,
+        self.publisher = self.create_publisher(
+            self.msg_class,
             output_topic,
-            qos
+            10
         )
 
         self.get_logger().info(
@@ -41,7 +42,8 @@ class B64DecodeNode(Node):
     def _callback(self, msg: String):
         try:
             decoded = base64.b64decode(msg.data)
-            self.publisher.publish(decoded)
+            out_msg = deserialize_message(decoded, self.msg_class)
+            self.publisher.publish(out_msg)
         except Exception as e:
             self.get_logger().error(f'Failed to decode base64: {e}')
 
