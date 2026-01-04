@@ -2,7 +2,7 @@
 
 [![Test](https://github.com/NOPLAB/mypkg/actions/workflows/test.yml/badge.svg)](https://github.com/NOPLAB/mypkg/actions/workflows/test.yml)
 
-任意のトピックをbase64エンコード/デコードする
+任意のトピックをbase64エンコード/デコードするROS2パッケージ
 
 ## ノード
 
@@ -49,19 +49,19 @@ encode/decodeノードを同時に起動
 ros2 launch b64 b64.launch.py
 ```
 
-```bash
-ros2 launch b64 b64.launch.py input_topic:=/camera/image_raw output_topic:=/camera/image_restored input_type:=sensor_msgs/msg/Image output_type:=sensor_msgs/msg/Image
-```
-
 ## 使用例
 
 ### 文字列のエンコード
+
+`/chatter`トピックの文字列をbase64エンコードして`~/output`にpublish：
 
 ```bash
 ros2 run b64 b64_encode --ros-args -p input_topic:=/chatter
 ```
 
 ### 画像のエンコード
+
+カメラ画像をbase64エンコード。`input_type`で入力メッセージ型を指定：
 
 ```bash
 ros2 run b64 b64_encode --ros-args \
@@ -71,17 +71,27 @@ ros2 run b64 b64_encode --ros-args \
 
 ### デコードして復元
 
+base64文字列を画像メッセージにデコードして`/camera/image_restored`にpublish：
+
 ```bash
 ros2 run b64 b64_decode --ros-args \
   -p output_topic:=/camera/image_restored \
   -p output_type:=sensor_msgs/msg/Image
 ```
 
-## テスト
+### Launchファイルで画像をエンコード/デコード
+
+エンコーダーとデコーダーを同時に起動し、画像トピックをbase64経由で中継する例：
 
 ```bash
-./test/test_b64.sh
+ros2 launch b64 b64.launch.py \
+  input_topic:=/camera/image_raw \
+  output_topic:=/camera/image_restored \
+  input_type:=sensor_msgs/msg/Image \
+  output_type:=sensor_msgs/msg/Image
 ```
+
+`/camera/image_raw` → base64エンコード → base64デコード → `/camera/image_restored` の流れでデータが中継される。
 
 ### テスト環境
 
